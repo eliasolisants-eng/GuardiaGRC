@@ -93,7 +93,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
       {/* Header */}
       <Reveal>
         <div>
-          <h1 className="text-2xl md:text-3xl font-display font-bold text-ink-900 dark:text-white tracking-tight">Visão Geral</h1>
+          <h1 className="text-2xl md:text-3xl font-display font-bold tracking-tight gradient-text">Visão Geral</h1>
           <p className="text-sm text-ink-500 dark:text-slate-400 mt-1">Score de risco de conformidade, status dos ativos de TI e itens de ação urgentes</p>
         </div>
       </Reveal>
@@ -123,27 +123,47 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Risk Score Gauge + Breakdown */}
         <Reveal delay={200}>
-          <div className="glass-card rounded-2xl p-6 h-full">
+          <div className="glass-card shimmer-sweep rounded-2xl p-6 h-full">
             <h2 className="text-base font-display font-bold text-ink-900 dark:text-white mb-4">Score de Risco</h2>
             <div className="flex justify-center mb-5">
               <RiskGauge score={risk.score} />
             </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-ink-500 dark:text-slate-400">Alta severidade em aberto</span>
-                <span className="font-semibold text-red-600 dark:text-red-400">-{risk.deductions.highVulns}%</span>
+            <div className="space-y-2.5">
+              <div>
+                <div className="flex items-center justify-between text-xs mb-1">
+                  <span className="text-ink-500 dark:text-slate-400">Alta severidade em aberto</span>
+                  <span className="font-semibold text-red-600 dark:text-red-400">-{risk.deductions.highVulns}%</span>
+                </div>
+                <div className="mini-bar-track">
+                  <div className="mini-bar-fill bg-gradient-to-r from-red-500 to-red-600" style={{ width: `${Math.min(risk.deductions.highVulns * 3, 100)}%` }} />
+                </div>
               </div>
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-ink-500 dark:text-slate-400">Média severidade em aberto</span>
-                <span className="font-semibold text-amber-600 dark:text-amber-400">-{risk.deductions.mediumVulns}%</span>
+              <div>
+                <div className="flex items-center justify-between text-xs mb-1">
+                  <span className="text-ink-500 dark:text-slate-400">Média severidade em aberto</span>
+                  <span className="font-semibold text-amber-600 dark:text-amber-400">-{risk.deductions.mediumVulns}%</span>
+                </div>
+                <div className="mini-bar-track">
+                  <div className="mini-bar-fill bg-gradient-to-r from-amber-500 to-amber-600" style={{ width: `${Math.min(risk.deductions.mediumVulns * 4, 100)}%` }} />
+                </div>
               </div>
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-ink-500 dark:text-slate-400">Credenciais vencidas</span>
-                <span className="font-semibold text-red-600 dark:text-red-400">-{risk.deductions.expiredCreds}%</span>
+              <div>
+                <div className="flex items-center justify-between text-xs mb-1">
+                  <span className="text-ink-500 dark:text-slate-400">Credenciais vencidas</span>
+                  <span className="font-semibold text-red-600 dark:text-red-400">-{risk.deductions.expiredCreds}%</span>
+                </div>
+                <div className="mini-bar-track">
+                  <div className="mini-bar-fill bg-gradient-to-r from-red-500 to-rose-600" style={{ width: `${Math.min(risk.deductions.expiredCreds * 4, 100)}%` }} />
+                </div>
               </div>
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-ink-500 dark:text-slate-400">Itens LGPD não conformes</span>
-                <span className="font-semibold text-amber-600 dark:text-amber-400">-{risk.deductions.unresolvedLgpd}%</span>
+              <div>
+                <div className="flex items-center justify-between text-xs mb-1">
+                  <span className="text-ink-500 dark:text-slate-400">Itens LGPD não conformes</span>
+                  <span className="font-semibold text-amber-600 dark:text-amber-400">-{risk.deductions.unresolvedLgpd}%</span>
+                </div>
+                <div className="mini-bar-track">
+                  <div className="mini-bar-fill bg-gradient-to-r from-amber-500 to-orange-600" style={{ width: `${Math.min(risk.deductions.unresolvedLgpd * 5, 100)}%` }} />
+                </div>
               </div>
             </div>
           </div>
@@ -151,7 +171,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
 
         {/* Risk Score Trend Chart */}
         <Reveal delay={300} className="lg:col-span-2">
-          <div className="glass-card rounded-2xl p-6 h-full">
+          <div className="glass-card shimmer-sweep rounded-2xl p-6 h-full">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-base font-display font-bold text-ink-900 dark:text-white">Tendência do Score de Risco</h2>
               <div className="flex items-center gap-1 text-xs text-ink-400 dark:text-slate-500">

@@ -55,7 +55,7 @@ export default function LGPD() {
     <div className="p-4 md:p-8 space-y-6 max-w-5xl mx-auto">
       <Reveal>
         <div>
-          <h1 className="text-2xl md:text-3xl font-display font-bold text-ink-900 dark:text-white tracking-tight">Checklist de Conformidade LGPD</h1>
+          <h1 className="text-2xl md:text-3xl font-display font-bold tracking-tight gradient-text">Checklist de Conformidade LGPD</h1>
           <p className="text-sm text-ink-500 dark:text-slate-400 mt-1">Acompanhamento de conformidade com a Lei Geral de Proteção de Dados</p>
         </div>
       </Reveal>

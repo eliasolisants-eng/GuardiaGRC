@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 import {
   LayoutDashboard,
   Server,
@@ -62,6 +62,60 @@ function LiquidBackground() {
   );
 }
 
+function FloatingParticles() {
+  const particles = Array.from({ length: 8 }, (_, i) => ({
+    id: i,
+    left: `${(i * 13 + 5) % 100}%`,
+    size: 3 + (i % 3) * 2,
+    duration: 15 + (i % 4) * 5,
+    delay: -(i * 2.5),
+    drift: `${(i % 2 === 0 ? 1 : -1) * (15 + (i % 3) * 10)}px`,
+    color: ['#3366ff', '#22c55e', '#f59e0b'][i % 3],
+  }));
+
+  return (
+    <div className="liquid-bg" style={{ zIndex: 0 }}>
+      {particles.map((p) => (
+        <div
+          key={p.id}
+          className="particle"
+          style={{
+            left: p.left,
+            bottom: '-10px',
+            width: p.size,
+            height: p.size,
+            background: p.color,
+            opacity: 0.15,
+            ['--drift' as string]: p.drift,
+            animation: `float-up ${p.duration}s linear infinite`,
+            animationDelay: `${p.delay}s`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function LiveDate() {
+  const [now, setNow] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const dateStr = now.toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric', month: 'short' });
+  const timeStr = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+  return (
+    <div className="hidden lg:flex items-center gap-2 text-xs text-ink-400 dark:text-slate-500 glass-panel px-3 py-1.5 rounded-lg">
+      <span className="capitalize">{dateStr}</span>
+      <span className="text-ink-300 dark:text-slate-600">·</span>
+      <span className="tabular-nums font-medium text-ink-500 dark:text-slate-400">{timeStr}</span>
+    </div>
+  );
+}
+
 export default function Layout({ current, onNavigate, children, alertCount, onExport }: LayoutProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { theme } = useTheme();
@@ -69,17 +123,18 @@ export default function Layout({ current, onNavigate, children, alertCount, onEx
   return (
     <div className={cn('flex h-screen overflow-hidden relative', theme === 'dark' ? 'bg-surface-0' : 'bg-ink-50')}>
       <LiquidBackground />
+      <FloatingParticles />
 
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex w-64 flex-col glass-sidebar z-10">
         <div className="px-6 py-5 border-b border-white/20 dark:border-white/5">
           <div className="flex items-center gap-2.5">
-            <div className="relative w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center shadow-soft shadow-brand-600/30">
-              <Shield className="w-5 h-5 text-white" />
+            <div className="relative w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center shadow-soft shadow-brand-600/30 gradient-border overflow-hidden">
+              <Shield className="w-5 h-5 text-white relative z-10" />
               <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/30 to-transparent pointer-events-none" />
             </div>
             <div>
-              <h1 className="text-sm font-display font-bold text-ink-900 dark:text-white tracking-tight">GuardiaGRC</h1>
+              <h1 className="text-sm font-display font-bold tracking-tight gradient-text">GuardiaGRC</h1>
               <p className="text-[10px] text-ink-400 dark:text-slate-500 font-medium">Conformidade LGPD</p>
             </div>
           </div>
@@ -106,11 +161,11 @@ export default function Layout({ current, onNavigate, children, alertCount, onEx
           <aside className="relative w-64 h-full glass-sidebar border-r border-white/20 dark:border-white/5 flex flex-col animate-slide-in-right">
             <div className="px-6 py-5 border-b border-white/20 dark:border-white/5 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="relative w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center">
-                  <Shield className="w-5 h-5 text-white" />
+                <div className="relative w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center gradient-border overflow-hidden">
+                  <Shield className="w-5 h-5 text-white relative z-10" />
                   <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/30 to-transparent pointer-events-none" />
                 </div>
-                <h1 className="text-sm font-display font-bold text-ink-900 dark:text-white">GuardiaGRC</h1>
+                <h1 className="text-sm font-display font-bold gradient-text">GuardiaGRC</h1>
               </div>
               <button onClick={() => setMobileOpen(false)} className="p-2 rounded-lg hover:bg-ink-100/50 dark:hover:bg-surface-2/50 transition-colors">
                 <X className="w-4 h-4 text-ink-500 dark:text-slate-400" />
@@ -143,20 +198,24 @@ export default function Layout({ current, onNavigate, children, alertCount, onEx
             </h2>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 md:gap-3">
+            <LiveDate />
             <div className="relative">
-              <button className="relative p-2 rounded-lg text-ink-500 dark:text-slate-400 hover:bg-ink-100/50 dark:hover:bg-surface-2/50 transition-all duration-200 active:scale-90">
+              <button className="relative p-2 rounded-lg text-ink-500 dark:text-slate-400 hover:glass-panel transition-all duration-200 active:scale-90">
                 <Bell className="w-[18px] h-[18px]" />
                 {alertCount > 0 && (
                   <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center animate-scale-in">
                     {alertCount}
                   </span>
                 )}
+                {alertCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 rounded-full bg-red-500 animate-ping opacity-30" />
+                )}
               </button>
             </div>
             <button
               onClick={onExport}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium bg-brand-600 text-white hover:bg-brand-500 transition-all duration-200 active:scale-95 shadow-soft shadow-brand-600/20"
+              className="btn-shimmer flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium bg-brand-600 text-white hover:bg-brand-500 transition-all duration-200 active:scale-95 shadow-soft shadow-brand-600/20"
             >
               <Download className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Exportar Relatório</span>

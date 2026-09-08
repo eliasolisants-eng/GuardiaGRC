@@ -45,8 +45,9 @@ function App() {
 
   if (!dataLoaded) {
     return (
-      <div className="flex items-center justify-center h-screen bg-ink-50 dark:bg-surface-0">
-        <div className="w-8 h-8 border-[3px] border-brand-600 border-t-transparent rounded-full animate-spin" />
+      <div className="flex flex-col items-center justify-center h-screen gap-4 bg-ink-50 dark:bg-surface-0">
+        <div className="relative orb-loader" />
+        <p className="text-sm font-display font-medium text-ink-400 dark:text-slate-500 animate-fade-in">Carregando GuardiaGRC...</p>
       </div>
     );
   }

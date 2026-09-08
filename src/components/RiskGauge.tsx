@@ -17,6 +17,7 @@ export default function RiskGauge({ score, size = 180 }: RiskGaugeProps) {
 
   return (
     <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
+      <div className="glow-ring" style={{ width: size, height: size }} />
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie

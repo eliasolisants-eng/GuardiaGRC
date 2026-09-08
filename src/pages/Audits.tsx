@@ -96,7 +96,7 @@ export default function Audits() {
       <Reveal>
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-display font-bold text-ink-900 dark:text-white tracking-tight">Auditoria & Itens de Ação</h1>
+            <h1 className="text-2xl md:text-3xl font-display font-bold tracking-tight gradient-text">Auditoria & Itens de Ação</h1>
             <p className="text-sm text-ink-500 dark:text-slate-400 mt-1">{logs.length} incidentes de segurança e eventos de não conformidade</p>
           </div>
           <Button onClick={openNew}><Plus className="w-4 h-4" /> Registrar Incidente</Button>
