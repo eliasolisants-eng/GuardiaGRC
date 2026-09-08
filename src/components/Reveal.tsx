@@ -1,0 +1,42 @@
+import { useEffect, useRef, ReactNode } from 'react';
+
+interface RevealProps {
+  children: ReactNode;
+  delay?: number;
+  className?: string;
+  as?: 'div' | 'section' | 'li' | 'article';
+}
+
+export default function Reveal({ children, delay = 0, className = '', as = 'div' }: RevealProps) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.08, rootMargin: '0px 0px -40px 0px' }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const Tag = as as 'div';
+  return (
+    <Tag
+      ref={ref}
+      data-reveal
+      style={{ '--reveal-delay': `${delay}ms` } as React.CSSProperties}
+      className={className}
+    >
+      {children}
+    </Tag>
+  );
+}
