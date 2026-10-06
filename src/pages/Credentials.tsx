@@ -100,7 +100,7 @@ export default function Credentials() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl md:text-3xl font-display font-bold tracking-tight gradient-text">Acessos & Vencimentos</h1>
-            <p className="text-sm text-ink-500 dark:text-slate-400 mt-1">{creds.length} credenciais e certificados monitorados</p>
+            <p className="text-sm text-ink-500 dark:text-slate-400 mt-1">{creds.length} senhas e certificados que voc&ecirc; precisa acompanhar</p>
           </div>
           <Button onClick={openNew}><Plus className="w-4 h-4" /> Adicionar Credencial</Button>
         </div>

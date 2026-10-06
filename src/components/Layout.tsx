@@ -25,29 +25,34 @@ interface LayoutProps {
   onExport: () => void;
 }
 
-const navItems: { id: View; label: string; icon: typeof LayoutDashboard }[] = [
-  { id: 'dashboard', label: 'Visão Geral', icon: LayoutDashboard },
-  { id: 'assets', label: 'Ativos de TI', icon: Server },
-  { id: 'lgpd', label: 'Checklist LGPD', icon: ShieldCheck },
-  { id: 'credentials', label: 'Acessos & Vencimentos', icon: KeyRound },
-  { id: 'audits', label: 'Auditoria & Ações', icon: FileSearch },
+const navItems: { id: View; label: string; description: string; icon: typeof LayoutDashboard }[] = [
+  { id: 'dashboard', label: 'Visão Geral', description: 'Resumo geral do seu nível de conformidade', icon: LayoutDashboard },
+  { id: 'assets', label: 'Ativos de TI', description: 'Computadores, servidores e sistemas da empresa', icon: Server },
+  { id: 'lgpd', label: 'Checklist LGPD', description: 'Itens que sua empresa precisa cumprir na lei', icon: ShieldCheck },
+  { id: 'credentials', label: 'Acessos & Vencimentos', description: 'Senhas, certificados e prazos que expiram', icon: KeyRound },
+  { id: 'audits', label: 'Auditoria & Ações', description: 'Problemas encontrados e o que fazer sobre eles', icon: FileSearch },
 ];
 
-function NavButton({ item, active, onClick }: { item: { id: View; label: string; icon: typeof LayoutDashboard }; active: boolean; onClick: () => void }) {
+function NavButton({ item, active, onClick }: { item: { id: View; label: string; description: string; icon: typeof LayoutDashboard }; active: boolean; onClick: () => void }) {
   const Icon = item.icon;
   return (
     <button
       onClick={onClick}
       className={cn(
-        'group relative w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 ease-spring active:scale-[0.98]',
+        'group relative w-full flex items-start gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 ease-spring active:scale-[0.98] text-left',
         active
           ? 'glass-panel text-brand-700 dark:text-brand-300 shadow-soft'
           : 'text-ink-500 dark:text-slate-400 hover:glass-panel hover:text-ink-800 dark:hover:text-slate-200'
       )}
     >
       {active && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 rounded-r-full bg-brand-600 dark:bg-brand-400 transition-all duration-300 ease-spring" />}
-      <Icon className={cn('w-[18px] h-[18px] transition-transform duration-300 group-hover:scale-110', active ? 'text-brand-600 dark:text-brand-400' : 'text-ink-400 dark:text-slate-500 group-hover:text-ink-600 dark:group-hover:text-slate-300')} />
-      {item.label}
+      <Icon className={cn('w-[18px] h-[18px] mt-0.5 shrink-0 transition-transform duration-300 group-hover:scale-110', active ? 'text-brand-600 dark:text-brand-400' : 'text-ink-400 dark:text-slate-500 group-hover:text-ink-600 dark:group-hover:text-slate-300')} />
+      <div className="min-w-0">
+        <span className="block">{item.label}</span>
+        <span className={cn('block text-[10px] font-normal leading-tight mt-0.5', active ? 'text-brand-600/70 dark:text-brand-300/60' : 'text-ink-400 dark:text-slate-600')}>
+          {item.description}
+        </span>
+      </div>
     </button>
   );
 }

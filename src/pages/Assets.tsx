@@ -93,7 +93,7 @@ export default function Assets() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl md:text-3xl font-display font-bold tracking-tight gradient-text">Ativos de TI</h1>
-            <p className="text-sm text-ink-500 dark:text-slate-400 mt-1">{filtered.length} ativos cadastrados</p>
+            <p className="text-sm text-ink-500 dark:text-slate-400 mt-1">{filtered.length} computadores e sistemas cadastrados</p>
           </div>
           <Button onClick={openNew}><Plus className="w-4 h-4" /> Adicionar Ativo</Button>
         </div>

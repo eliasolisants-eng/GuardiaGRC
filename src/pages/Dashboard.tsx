@@ -8,6 +8,10 @@ import {
   TrendingDown,
   ArrowRight,
   Clock,
+  Info,
+  CheckCircle2,
+  XCircle,
+  AlertCircle,
 } from 'lucide-react';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -94,14 +98,85 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
       <Reveal>
         <div>
           <h1 className="text-2xl md:text-3xl font-display font-bold tracking-tight gradient-text">Visão Geral</h1>
-          <p className="text-sm text-ink-500 dark:text-slate-400 mt-1">Score de risco de conformidade, status dos ativos de TI e itens de ação urgentes</p>
+          <p className="text-sm text-ink-500 dark:text-slate-400 mt-1">
+            Veja rapidamente como está a segurança e a conformidade da sua empresa com a LGPD.
+          </p>
+        </div>
+      </Reveal>
+
+      {/* Painel explicativo: o que é este sistema */}
+      <Reveal delay={40}>
+        <div className="glass-card rounded-2xl p-5 md:p-6">
+          <div className="flex items-start gap-3 mb-4">
+            <div className="w-9 h-9 rounded-xl bg-brand-50 dark:bg-brand-600/15 flex items-center justify-center shrink-0">
+              <Info className="w-5 h-5 text-brand-600 dark:text-brand-400" />
+            </div>
+            <div>
+              <h2 className="text-sm font-display font-bold text-ink-900 dark:text-white">O que &eacute; o GuardiaGRC?</h2>
+              <p className="text-xs text-ink-500 dark:text-slate-400 mt-1 leading-relaxed">
+                Este sistema ajuda sua empresa a cumprir a <strong>LGPD</strong> (Lei Geral de Prote&ccedil;&atilde;o de Dados).
+                Ele organiza em um s&oacute; lugar tudo o que voc&ecirc; precisa monitorar: seus computadores e sistemas,
+                os itens da lei que j&aacute; est&atilde;o em dia, suas senhas e certificados, e os problemas que precisam de aten&ccedil;&atilde;o.
+              </p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-4">
+            <button
+              onClick={() => onNavigate('assets')}
+              className="glass-panel rounded-xl p-3.5 text-left hover:shadow-soft transition-all duration-300 hover:-translate-y-0.5 group"
+            >
+              <div className="flex items-center gap-2 mb-1.5">
+                <Server className="w-4 h-4 text-sky-500" />
+                <span className="text-xs font-semibold text-ink-800 dark:text-slate-200">Ativos de TI</span>
+              </div>
+              <p className="text-[11px] text-ink-400 dark:text-slate-500 leading-relaxed">
+                Cadastre os computadores, servidores e sistemas que sua empresa usa.
+              </p>
+            </button>
+            <button
+              onClick={() => onNavigate('lgpd')}
+              className="glass-panel rounded-xl p-3.5 text-left hover:shadow-soft transition-all duration-300 hover:-translate-y-0.5 group"
+            >
+              <div className="flex items-center gap-2 mb-1.5">
+                <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                <span className="text-xs font-semibold text-ink-800 dark:text-slate-200">Checklist LGPD</span>
+              </div>
+              <p className="text-[11px] text-ink-400 dark:text-slate-500 leading-relaxed">
+                Marque o que sua empresa j&aacute; cumpre e o que ainda falta na lei.
+              </p>
+            </button>
+            <button
+              onClick={() => onNavigate('credentials')}
+              className="glass-panel rounded-xl p-3.5 text-left hover:shadow-soft transition-all duration-300 hover:-translate-y-0.5 group"
+            >
+              <div className="flex items-center gap-2 mb-1.5">
+                <KeyRound className="w-4 h-4 text-amber-500" />
+                <span className="text-xs font-semibold text-ink-800 dark:text-slate-200">Acessos</span>
+              </div>
+              <p className="text-[11px] text-ink-400 dark:text-slate-500 leading-relaxed">
+                Acompanhe senhas e certificados que est&atilde;o prestes a vencer.
+              </p>
+            </button>
+            <button
+              onClick={() => onNavigate('audits')}
+              className="glass-panel rounded-xl p-3.5 text-left hover:shadow-soft transition-all duration-300 hover:-translate-y-0.5 group"
+            >
+              <div className="flex items-center gap-2 mb-1.5">
+                <AlertTriangle className="w-4 h-4 text-red-500" />
+                <span className="text-xs font-semibold text-ink-800 dark:text-slate-200">Auditoria</span>
+              </div>
+              <p className="text-[11px] text-ink-400 dark:text-slate-500 leading-relaxed">
+                Veja os problemas encontrados e o que precisa ser feito sobre cada um.
+              </p>
+            </button>
+          </div>
         </div>
       </Reveal>
 
       {/* Metric Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
         <Reveal delay={0}>
-          <div className="glass-card rounded-2xl p-5 card-lift stagger-item" style={{ '--stagger': 0 } as React.CSSProperties}>
+          <div className="glass-card shimmer-sweep rounded-2xl p-5 card-lift stagger-item" style={{ '--stagger': 0 } as React.CSSProperties}>
             <div className="flex items-center justify-between mb-3">
               <div className="w-10 h-10 rounded-xl bg-brand-50 dark:bg-brand-600/15 flex items-center justify-center">
                 <Gauge className="w-5 h-5 text-brand-600 dark:text-brand-400" />
@@ -110,25 +185,29 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
             <p className="text-3xl font-display font-bold tabular-nums" style={{ color: risk.score >= 80 ? '#22c55e' : risk.score >= 50 ? '#f59e0b' : '#ef4444' }}>
               {risk.score}%
             </p>
-            <p className="text-xs text-ink-500 dark:text-slate-400 mt-1">Score de Risco de Conformidade</p>
-            <p className="text-[11px] text-ink-400 dark:text-slate-500 mt-0.5">{risk.score >= 80 ? 'Baixo Risco' : risk.score >= 50 ? 'Risco Médio' : 'Risco Crítico'}</p>
+            <p className="text-xs text-ink-500 dark:text-slate-400 mt-1">N&iacute;vel de Conformidade</p>
+            <p className="text-[11px] text-ink-400 dark:text-slate-500 mt-0.5">
+              {risk.score >= 80 ? 'Tudo bem - risco baixo' : risk.score >= 50 ? 'Aten&ccedil;&atilde;o - risco m&eacute;dio' : 'Urgente - risco cr&iacute;tico'}
+            </p>
           </div>
         </Reveal>
 
-        <StatCard label="Total de Ativos de TI" value={assets.length} icon={<Server className="w-5 h-5" />} iconBg="bg-sky-50 dark:bg-sky-500/15" iconColor="text-sky-600 dark:text-sky-400" subtext={`${assets.filter(a => a.status === 'Compliant').length} em conformidade`} delay={1} />
-        <StatCard label="Conformidade LGPD" value={`${lgpdPct}%`} icon={<ShieldCheck className="w-5 h-5" />} iconBg="bg-accent-50 dark:bg-emerald-500/15" iconColor="text-emerald-600 dark:text-emerald-400" subtext={`${lgpdCompliant}/${lgpdItems.length} itens em conformidade`} delay={2} />
-        <StatCard label="Alertas de Risco Alto Ativos" value={highRiskAlerts} icon={<AlertTriangle className="w-5 h-5" />} iconBg="bg-red-50 dark:bg-red-500/15" iconColor="text-red-600 dark:text-red-400" subtext={`${alertCount} alertas no total`} delay={3} />
+        <StatCard label="Computadores e Sistemas" value={assets.length} icon={<Server className="w-5 h-5" />} iconBg="bg-sky-50 dark:bg-sky-500/15" iconColor="text-sky-600 dark:text-sky-400" subtext={`${assets.filter(a => a.status === 'Compliant').length} em conformidade`} delay={1} />
+        <StatCard label="Itens da Lei em Dia" value={`${lgpdPct}%`} icon={<ShieldCheck className="w-5 h-5" />} iconBg="bg-accent-50 dark:bg-emerald-500/15" iconColor="text-emerald-600 dark:text-emerald-400" subtext={`${lgpdCompliant} de ${lgpdItems.length} itens cumpridos`} delay={2} />
+        <StatCard label="Problemas Urgentes" value={highRiskAlerts} icon={<AlertTriangle className="w-5 h-5" />} iconBg="bg-red-50 dark:bg-red-500/15" iconColor="text-red-600 dark:text-red-400" subtext={`${alertCount} alertas no total`} delay={3} />
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Risk Score Gauge + Breakdown */}
         <Reveal delay={200}>
           <div className="glass-card shimmer-sweep rounded-2xl p-6 h-full">
-            <h2 className="text-base font-display font-bold text-ink-900 dark:text-white mb-4">Score de Risco</h2>
+            <h2 className="text-base font-display font-bold text-ink-900 dark:text-white mb-1">N&iacute;vel de Conformidade</h2>
+            <p className="text-xs text-ink-400 dark:text-slate-500 mb-4">Quanto mais pr&oacute;ximo de 100%, mais sua empresa est&aacute; em dia com a lei.</p>
             <div className="flex justify-center mb-5">
               <RiskGauge score={risk.score} />
             </div>
             <div className="space-y-2.5">
+              <p className="text-[11px] text-ink-400 dark:text-slate-500 mb-1">O que est&aacute; reduzindo sua pontua&ccedil;&atilde;o:</p>
               <div>
                 <div className="flex items-center justify-between text-xs mb-1">
                   <span className="text-ink-500 dark:text-slate-400">Alta severidade em aberto</span>
@@ -173,14 +252,14 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
         <Reveal delay={300} className="lg:col-span-2">
           <div className="glass-card shimmer-sweep rounded-2xl p-6 h-full">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-base font-display font-bold text-ink-900 dark:text-white">Tendência do Score de Risco</h2>
+              <h2 className="text-base font-display font-bold text-ink-900 dark:text-white">Evolu&ccedil;&atilde;o do N&iacute;vel de Conformidade</h2>
               <div className="flex items-center gap-1 text-xs text-ink-400 dark:text-slate-500">
                 {risk.score > (chartData[chartData.length - 2]?.score ?? risk.score) ? (
                   <TrendingDown className="w-4 h-4 text-emerald-500" />
                 ) : (
                   <TrendingUp className="w-4 h-4 text-red-500" />
                 )}
-                Últimos 14 dias
+                &Uacute;ltimos 14 dias
               </div>
             </div>
             <ResponsiveContainer width="100%" height={250}>
@@ -209,7 +288,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
       <Reveal delay={100}>
         <div className="glass-card rounded-2xl p-5">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-base font-display font-bold text-ink-900 dark:text-white">Itens de Ação Urgentes</h2>
+            <h2 className="text-base font-display font-bold text-ink-900 dark:text-white">O que precisa de aten&ccedil;&atilde;o agora</h2>
             <button
               onClick={() => onNavigate('audits')}
               className="flex items-center gap-1 text-xs text-brand-600 dark:text-brand-400 font-medium hover:text-brand-500 transition-colors group"
@@ -221,7 +300,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
           {openActions.length === 0 ? (
             <div className="py-8 text-center text-ink-400 dark:text-slate-500 text-sm">
               <ShieldCheck className="w-8 h-8 mx-auto mb-2 opacity-30" />
-              Nenhum item de ação pendente
+              Nenhum problema pendente. Tudo em ordem.
             </div>
           ) : (
             <div className="space-y-2">
