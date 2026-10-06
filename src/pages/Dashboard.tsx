@@ -12,6 +12,7 @@ import {
   CheckCircle2,
   XCircle,
   AlertCircle,
+  KeyRound,
 } from 'lucide-react';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
