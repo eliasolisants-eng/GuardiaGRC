@@ -185,7 +185,7 @@ export default function Credentials() {
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <span className={cn('flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold', style.bg, style.text)}>
-                      <StatusIcon className={cn('w-3.5 h-3.5', status === 'In Progress' && 'animate-spin')} />
+                      <StatusIcon className={cn('w-3.5 h-3.5', status === 'Expired' && 'animate-pulse')} />
                       {style.label}
                       {days !== null && days < 30 && (
                         <span className="ml-0.5">({days > 0 ? `${days}d` : `${Math.abs(days)}d atrás`})</span>
@@ -222,17 +222,17 @@ export default function Credentials() {
             </div>
             <div>
               <label className={labelClass}>Titular</label>
-              <input type="text" value={form.holder} onChange={(e) => setForm({ ...form, holder: e.target.value })} className={fieldClass} />
+              <input type="text" value={form.holder ?? ''} onChange={(e) => setForm({ ...form, holder: e.target.value })} className={fieldClass} />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className={labelClass}>Data de Emissão</label>
-              <input type="date" value={form.issue_date} onChange={(e) => setForm({ ...form, issue_date: e.target.value })} className={fieldClass} />
+              <input type="date" value={form.issue_date ?? ''} onChange={(e) => setForm({ ...form, issue_date: e.target.value })} className={fieldClass} />
             </div>
             <div>
               <label className={labelClass}>Data de Vencimento *</label>
-              <input type="date" value={form.expiry_date} onChange={(e) => setForm({ ...form, expiry_date: e.target.value })} className={fieldClass} required />
+              <input type="date" value={form.expiry_date ?? ''} onChange={(e) => setForm({ ...form, expiry_date: e.target.value })} className={fieldClass} required />
             </div>
           </div>
           {error && <div className="text-sm text-red-600 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 rounded-xl px-3.5 py-2.5">{error}</div>}

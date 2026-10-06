@@ -1,4 +1,5 @@
-import { GrcAsset, LgpdItem, Credential, AuditLog, RiskScoreBreakdown } from '@/types';
+import { GrcAsset, LgpdItem, Credential, AuditLog } from '@/types';
+import { RiskScoreBreakdown } from '@/lib/risk';
 import { getCredentialStatus } from '@/lib/risk';
 import { formatDate, daysUntil } from '@/lib/utils';
 

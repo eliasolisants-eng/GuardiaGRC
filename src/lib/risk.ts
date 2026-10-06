@@ -69,18 +69,6 @@ export function calculateRiskScore(
   };
 }
 
-export function getScoreColor(score: number): string {
-  if (score >= 80) return '#22c55e';
-  if (score >= 50) return '#f59e0b';
-  return '#ef4444';
-}
-
-export function getScoreLabel(score: number): string {
-  if (score >= 80) return 'Baixo Risco';
-  if (score >= 50) return 'Risco Médio';
-  return 'Risco Crítico';
-}
-
 export function getCredentialStatus(cred: Credential): CredentialStatus {
   const days = daysUntil(cred.expiry_date);
   if (days === null) return 'Active';

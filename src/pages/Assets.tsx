@@ -207,11 +207,11 @@ export default function Assets() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className={labelClass}>Responsável</label>
-              <input type="text" value={form.owner} onChange={(e) => setForm({ ...form, owner: e.target.value })} className={fieldClass} />
+              <input type="text" value={form.owner ?? ''} onChange={(e) => setForm({ ...form, owner: e.target.value })} className={fieldClass} />
             </div>
             <div>
               <label className={labelClass}>Data da Última Auditoria</label>
-              <input type="date" value={form.last_audit_date} onChange={(e) => setForm({ ...form, last_audit_date: e.target.value })} className={fieldClass} />
+              <input type="date" value={form.last_audit_date ?? ''} onChange={(e) => setForm({ ...form, last_audit_date: e.target.value })} className={fieldClass} />
             </div>
           </div>
           <div>

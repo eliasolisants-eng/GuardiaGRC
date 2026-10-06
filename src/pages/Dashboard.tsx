@@ -9,9 +9,6 @@ import {
   ArrowRight,
   Clock,
   Info,
-  CheckCircle2,
-  XCircle,
-  AlertCircle,
   KeyRound,
 } from 'lucide-react';
 import {

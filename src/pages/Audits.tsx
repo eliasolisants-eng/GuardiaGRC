@@ -229,7 +229,7 @@ export default function Audits() {
           </div>
           <div>
             <label className={labelClass}>Descrição</label>
-            <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className={fieldClass} rows={3} />
+            <textarea value={form.description ?? ''} onChange={(e) => setForm({ ...form, description: e.target.value })} className={fieldClass} rows={3} />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -248,11 +248,11 @@ export default function Audits() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className={labelClass}>Responsável</label>
-              <input type="text" value={form.assigned_to} onChange={(e) => setForm({ ...form, assigned_to: e.target.value })} className={fieldClass} />
+              <input type="text" value={form.assigned_to ?? ''} onChange={(e) => setForm({ ...form, assigned_to: e.target.value })} className={fieldClass} />
             </div>
             <div>
               <label className={labelClass}>Data do Incidente</label>
-              <input type="date" value={form.incident_date} onChange={(e) => setForm({ ...form, incident_date: e.target.value })} className={fieldClass} />
+              <input type="date" value={form.incident_date ?? ''} onChange={(e) => setForm({ ...form, incident_date: e.target.value })} className={fieldClass} />
             </div>
           </div>
           {error && <div className="text-sm text-red-600 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 rounded-xl px-3.5 py-2.5">{error}</div>}

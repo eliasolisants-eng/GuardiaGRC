@@ -90,12 +90,6 @@ export const AUDIT_STATUS_COLORS: Record<AuditStatus, string> = {
   'Resolved': ' resolved',
 };
 
-export const LGPD_STATUS_COLORS: Record<LGPDStatus, string> = {
-  'Compliant': ' compliant',
-  'In Progress': ' in-progress',
-  'Non-Compliant': ' non-compliant',
-};
-
 export const CRITICALITY_COLORS: Record<Criticality, string> = {
   'High': ' high',
   'Medium': ' medium',
