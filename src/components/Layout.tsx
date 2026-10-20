@@ -77,7 +77,7 @@ export default function Layout({ current, onNavigate, children, alertCount, onEx
               <Shield className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-sm font-display font-bold tracking-tight text-ink-900 dark:text-white">GuardiaGRC</h1>
+              <h1 className="text-sm font-display font-bold tracking-tight text-ink-900 dark:text-white">Apex Governance</h1>
               <p className="text-[10px] text-ink-400 dark:text-slate-500 font-medium">Conformidade LGPD</p>
             </div>
           </div>
@@ -105,7 +105,7 @@ export default function Layout({ current, onNavigate, children, alertCount, onEx
                 <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center">
                   <Shield className="w-5 h-5 text-white" />
                 </div>
-                <h1 className="text-sm font-display font-bold text-ink-900 dark:text-white">GuardiaGRC</h1>
+                <h1 className="text-sm font-display font-bold text-ink-900 dark:text-white">Apex Governance</h1>
               </div>
               <button onClick={() => setMobileOpen(false)} className="p-2 rounded-lg hover:bg-ink-100/50 dark:hover:bg-surface-2/50 transition-colors">
                 <X className="w-4 h-4 text-ink-500 dark:text-slate-400" />
