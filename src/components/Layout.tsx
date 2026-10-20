@@ -5,7 +5,6 @@ import {
   ShieldCheck,
   KeyRound,
   FileSearch,
-  Shield,
   Bell,
   Download,
   Menu,
@@ -73,9 +72,11 @@ export default function Layout({ current, onNavigate, children, alertCount, onEx
       <aside className="hidden md:flex w-60 flex-col glass-sidebar z-10">
         <div className="px-5 py-4 border-b border-white/20 dark:border-white/5">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center shadow-soft shadow-brand-600/30">
-              <Shield className="w-5 h-5 text-white" />
-            </div>
+            <img
+              src="/logo.png"
+              alt="Logo"
+              className="w-9 h-9 rounded-xl object-cover shadow-soft"
+            />
             <div>
               <h1 className="text-sm font-display font-bold tracking-tight text-ink-900 dark:text-white">Apex Governance</h1>
               <p className="text-[10px] text-ink-400 dark:text-slate-500 font-medium">Conformidade LGPD</p>
@@ -102,9 +103,11 @@ export default function Layout({ current, onNavigate, children, alertCount, onEx
           <aside className="relative w-60 h-full glass-sidebar flex flex-col animate-slide-in-right">
             <div className="px-5 py-4 border-b border-white/20 dark:border-white/5 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center">
-                  <Shield className="w-5 h-5 text-white" />
-                </div>
+                <img
+                  src="/logo.png"
+                  alt="Logo"
+                  className="w-9 h-9 rounded-xl object-cover"
+                />
                 <h1 className="text-sm font-display font-bold text-ink-900 dark:text-white">Apex Governance</h1>
               </div>
               <button onClick={() => setMobileOpen(false)} className="p-2 rounded-lg hover:bg-ink-100/50 dark:hover:bg-surface-2/50 transition-colors">
