@@ -4,12 +4,8 @@ import {
   Server,
   AlertTriangle,
   Gauge,
-  TrendingUp,
-  TrendingDown,
   ArrowRight,
   Clock,
-  Info,
-  KeyRound,
 } from 'lucide-react';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -22,49 +18,33 @@ import {
 import { calculateRiskScore, getAlertCount } from '@/lib/risk';
 import { relativeTime, cn } from '@/lib/utils';
 import { useTheme } from '@/lib/theme';
-import StatCard from '@/components/StatCard';
-import RiskGauge from '@/components/RiskGauge';
 import Badge from '@/components/Badge';
-import Reveal from '@/components/Reveal';
 
 interface DashboardProps {
+  assets: GrcAsset[];
+  lgpdItems: LgpdItem[];
+  credentials: Credential[];
+  auditLogs: AuditLog[];
   onNavigate: (view: 'assets' | 'lgpd' | 'credentials' | 'audits') => void;
 }
 
-export default function Dashboard({ onNavigate }: DashboardProps) {
-  const [assets, setAssets] = useState<GrcAsset[]>([]);
-  const [lgpdItems, setLgpdItems] = useState<LgpdItem[]>([]);
-  const [credentials, setCredentials] = useState<Credential[]>([]);
-  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
+export default function Dashboard({ assets, lgpdItems, credentials, auditLogs, onNavigate }: DashboardProps) {
   const [riskHistory, setRiskHistory] = useState<RiskHistoryPoint[]>([]);
-  const [loading, setLoading] = useState(true);
   const { theme } = useTheme();
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    const [{ data: a }, { data: l }, { data: c }, { data: au }, { data: rh }] = await Promise.all([
-      supabase.from('grc_assets').select('*').order('name'),
-      supabase.from('grc_lgpd_items').select('*').order('title'),
-      supabase.from('grc_credentials').select('*').order('name'),
-      supabase.from('grc_audit_logs').select('*').order('created_at', { ascending: false }),
-      supabase.from('grc_risk_history').select('*').order('calculated_at', { ascending: true }),
-    ]);
-    if (a) setAssets(a as GrcAsset[]);
-    if (l) setLgpdItems(l as LgpdItem[]);
-    if (c) setCredentials(c as Credential[]);
-    if (au) setAuditLogs(au as AuditLog[]);
+  const loadHistory = useCallback(async () => {
+    const { data: rh } = await supabase.from('grc_risk_history').select('*').order('calculated_at', { ascending: true });
     if (rh) setRiskHistory(rh as RiskHistoryPoint[]);
-    setLoading(false);
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => { loadHistory(); }, [loadHistory]);
 
   const risk = calculateRiskScore(assets, lgpdItems, credentials, auditLogs);
   const alertCount = getAlertCount(credentials, auditLogs, lgpdItems);
   const lgpdCompliant = lgpdItems.filter((l) => l.status === 'Compliant').length;
   const lgpdPct = lgpdItems.length > 0 ? Math.round((lgpdCompliant / lgpdItems.length) * 100) : 0;
   const highRiskAlerts = auditLogs.filter((a) => a.severity === 'High' && a.status !== 'Resolved').length;
-  const openActions = auditLogs.filter((a) => a.status !== 'Resolved').slice(0, 5);
+  const openActions = auditLogs.filter((a) => a.status !== 'Resolved').slice(0, 6);
 
   const chartData = riskHistory.map((h) => ({
     date: new Date(h.calculated_at).toLocaleDateString('pt-BR', { month: 'short', day: 'numeric' }),
@@ -78,266 +58,124 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
   const tooltipBorder = isDark ? '#334155' : '#e2e8f0';
   const tooltipText = isDark ? '#e2e8f0' : '#1f2531';
 
-  if (loading) {
-    return (
-      <div className="p-6 md:p-8 space-y-6 max-w-7xl mx-auto">
-        <div className="h-8 w-48 skeleton rounded-lg" />
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-28 skeleton rounded-2xl" />)}
-        </div>
-        <div className="h-80 skeleton rounded-2xl" />
-      </div>
-    );
-  }
+  const indicators = [
+    { label: 'Conformidade', value: `${risk.score}%`, icon: <Gauge className="w-4 h-4" />, color: risk.score >= 80 ? 'text-emerald-600 dark:text-emerald-400' : risk.score >= 50 ? 'text-amber-600 dark:text-amber-400' : 'text-red-600 dark:text-red-400', bg: 'bg-brand-50 dark:bg-brand-600/15' },
+    { label: 'Ativos', value: assets.length, icon: <Server className="w-4 h-4" />, color: 'text-sky-600 dark:text-sky-400', bg: 'bg-sky-50 dark:bg-sky-500/15' },
+    { label: 'Checklist LGPD', value: `${lgpdPct}%`, icon: <ShieldCheck className="w-4 h-4" />, color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-500/15' },
+    { label: 'Incidentes Urgentes', value: highRiskAlerts, icon: <AlertTriangle className="w-4 h-4" />, color: 'text-red-600 dark:text-red-400', bg: 'bg-red-50 dark:bg-red-500/15' },
+  ];
 
   return (
-    <div className="p-4 md:p-8 space-y-6 max-w-7xl mx-auto">
-      {/* Header */}
-      <Reveal>
-        <div>
-          <h1 className="text-2xl md:text-3xl font-display font-bold tracking-tight gradient-text">Visão Geral</h1>
-          <p className="text-sm text-ink-500 dark:text-slate-400 mt-1">
-            Veja rapidamente como está a segurança e a conformidade da sua empresa com a LGPD.
-          </p>
-        </div>
-      </Reveal>
-
-      {/* Painel explicativo: o que é este sistema */}
-      <Reveal delay={40}>
-        <div className="glass-card rounded-2xl p-5 md:p-6">
-          <div className="flex items-start gap-3 mb-4">
-            <div className="w-9 h-9 rounded-xl bg-brand-50 dark:bg-brand-600/15 flex items-center justify-center shrink-0">
-              <Info className="w-5 h-5 text-brand-600 dark:text-brand-400" />
+    <div className="p-4 md:p-6 space-y-5 max-w-7xl mx-auto">
+      {/* Indicator strip */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {indicators.map((ind, i) => (
+          <div key={ind.label} className="glass-card rounded-xl p-4 stagger-item" style={{ '--stagger': i } as React.CSSProperties}>
+            <div className="flex items-center gap-2 mb-2">
+              <div className={cn('w-8 h-8 rounded-lg flex items-center justify-center', ind.bg)}>
+                <span className={ind.color}>{ind.icon}</span>
+              </div>
+              <span className="text-xs text-ink-500 dark:text-slate-400 font-medium">{ind.label}</span>
             </div>
-            <div>
-              <h2 className="text-sm font-display font-bold text-ink-900 dark:text-white">O que &eacute; o GuardiaGRC?</h2>
-              <p className="text-xs text-ink-500 dark:text-slate-400 mt-1 leading-relaxed">
-                Este sistema ajuda sua empresa a cumprir a <strong>LGPD</strong> (Lei Geral de Prote&ccedil;&atilde;o de Dados).
-                Ele organiza em um s&oacute; lugar tudo o que voc&ecirc; precisa monitorar: seus computadores e sistemas,
-                os itens da lei que j&aacute; est&atilde;o em dia, suas senhas e certificados, e os problemas que precisam de aten&ccedil;&atilde;o.
-              </p>
-            </div>
+            <p className={cn('text-2xl font-display font-bold tabular-nums', ind.color)}>{ind.value}</p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-4">
-            <button
-              onClick={() => onNavigate('assets')}
-              className="glass-panel rounded-xl p-3.5 text-left hover:shadow-soft transition-all duration-300 hover:-translate-y-0.5 group"
-            >
-              <div className="flex items-center gap-2 mb-1.5">
-                <Server className="w-4 h-4 text-sky-500" />
-                <span className="text-xs font-semibold text-ink-800 dark:text-slate-200">Ativos de TI</span>
-              </div>
-              <p className="text-[11px] text-ink-400 dark:text-slate-500 leading-relaxed">
-                Cadastre os computadores, servidores e sistemas que sua empresa usa.
-              </p>
-            </button>
-            <button
-              onClick={() => onNavigate('lgpd')}
-              className="glass-panel rounded-xl p-3.5 text-left hover:shadow-soft transition-all duration-300 hover:-translate-y-0.5 group"
-            >
-              <div className="flex items-center gap-2 mb-1.5">
-                <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                <span className="text-xs font-semibold text-ink-800 dark:text-slate-200">Checklist LGPD</span>
-              </div>
-              <p className="text-[11px] text-ink-400 dark:text-slate-500 leading-relaxed">
-                Marque o que sua empresa j&aacute; cumpre e o que ainda falta na lei.
-              </p>
-            </button>
-            <button
-              onClick={() => onNavigate('credentials')}
-              className="glass-panel rounded-xl p-3.5 text-left hover:shadow-soft transition-all duration-300 hover:-translate-y-0.5 group"
-            >
-              <div className="flex items-center gap-2 mb-1.5">
-                <KeyRound className="w-4 h-4 text-amber-500" />
-                <span className="text-xs font-semibold text-ink-800 dark:text-slate-200">Acessos</span>
-              </div>
-              <p className="text-[11px] text-ink-400 dark:text-slate-500 leading-relaxed">
-                Acompanhe senhas e certificados que est&atilde;o prestes a vencer.
-              </p>
-            </button>
-            <button
-              onClick={() => onNavigate('audits')}
-              className="glass-panel rounded-xl p-3.5 text-left hover:shadow-soft transition-all duration-300 hover:-translate-y-0.5 group"
-            >
-              <div className="flex items-center gap-2 mb-1.5">
-                <AlertTriangle className="w-4 h-4 text-red-500" />
-                <span className="text-xs font-semibold text-ink-800 dark:text-slate-200">Auditoria</span>
-              </div>
-              <p className="text-[11px] text-ink-400 dark:text-slate-500 leading-relaxed">
-                Veja os problemas encontrados e o que precisa ser feito sobre cada um.
-              </p>
-            </button>
-          </div>
-        </div>
-      </Reveal>
-
-      {/* Metric Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-        <Reveal delay={0}>
-          <div className="glass-card shimmer-sweep rounded-2xl p-5 card-lift stagger-item" style={{ '--stagger': 0 } as React.CSSProperties}>
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-10 h-10 rounded-xl bg-brand-50 dark:bg-brand-600/15 flex items-center justify-center">
-                <Gauge className="w-5 h-5 text-brand-600 dark:text-brand-400" />
-              </div>
-            </div>
-            <p className="text-3xl font-display font-bold tabular-nums" style={{ color: risk.score >= 80 ? '#22c55e' : risk.score >= 50 ? '#f59e0b' : '#ef4444' }}>
-              {risk.score}%
-            </p>
-            <p className="text-xs text-ink-500 dark:text-slate-400 mt-1">N&iacute;vel de Conformidade</p>
-            <p className="text-[11px] text-ink-400 dark:text-slate-500 mt-0.5">
-              {risk.score >= 80 ? 'Tudo bem - risco baixo' : risk.score >= 50 ? 'Aten&ccedil;&atilde;o - risco m&eacute;dio' : 'Urgente - risco cr&iacute;tico'}
-            </p>
-          </div>
-        </Reveal>
-
-        <StatCard label="Computadores e Sistemas" value={assets.length} icon={<Server className="w-5 h-5" />} iconBg="bg-sky-50 dark:bg-sky-500/15" iconColor="text-sky-600 dark:text-sky-400" subtext={`${assets.filter(a => a.status === 'Compliant').length} em conformidade`} delay={1} />
-        <StatCard label="Itens da Lei em Dia" value={`${lgpdPct}%`} icon={<ShieldCheck className="w-5 h-5" />} iconBg="bg-accent-50 dark:bg-emerald-500/15" iconColor="text-emerald-600 dark:text-emerald-400" subtext={`${lgpdCompliant} de ${lgpdItems.length} itens cumpridos`} delay={2} />
-        <StatCard label="Problemas Urgentes" value={highRiskAlerts} icon={<AlertTriangle className="w-5 h-5" />} iconBg="bg-red-50 dark:bg-red-500/15" iconColor="text-red-600 dark:text-red-400" subtext={`${alertCount} alertas no total`} delay={3} />
+        ))}
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* Risk Score Gauge + Breakdown */}
-        <Reveal delay={200}>
-          <div className="glass-card shimmer-sweep rounded-2xl p-6 h-full">
-            <h2 className="text-base font-display font-bold text-ink-900 dark:text-white mb-1">N&iacute;vel de Conformidade</h2>
-            <p className="text-xs text-ink-400 dark:text-slate-500 mb-4">Quanto mais pr&oacute;ximo de 100%, mais sua empresa est&aacute; em dia com a lei.</p>
-            <div className="flex justify-center mb-5">
-              <RiskGauge score={risk.score} />
-            </div>
-            <div className="space-y-2.5">
-              <p className="text-[11px] text-ink-400 dark:text-slate-500 mb-1">O que est&aacute; reduzindo sua pontua&ccedil;&atilde;o:</p>
-              <div>
-                <div className="flex items-center justify-between text-xs mb-1">
-                  <span className="text-ink-500 dark:text-slate-400">Alta severidade em aberto</span>
-                  <span className="font-semibold text-red-600 dark:text-red-400">-{risk.deductions.highVulns}%</span>
-                </div>
-                <div className="mini-bar-track">
-                  <div className="mini-bar-fill bg-gradient-to-r from-red-500 to-red-600" style={{ width: `${Math.min(risk.deductions.highVulns * 3, 100)}%` }} />
-                </div>
-              </div>
-              <div>
-                <div className="flex items-center justify-between text-xs mb-1">
-                  <span className="text-ink-500 dark:text-slate-400">Média severidade em aberto</span>
-                  <span className="font-semibold text-amber-600 dark:text-amber-400">-{risk.deductions.mediumVulns}%</span>
-                </div>
-                <div className="mini-bar-track">
-                  <div className="mini-bar-fill bg-gradient-to-r from-amber-500 to-amber-600" style={{ width: `${Math.min(risk.deductions.mediumVulns * 4, 100)}%` }} />
-                </div>
-              </div>
-              <div>
-                <div className="flex items-center justify-between text-xs mb-1">
-                  <span className="text-ink-500 dark:text-slate-400">Credenciais vencidas</span>
-                  <span className="font-semibold text-red-600 dark:text-red-400">-{risk.deductions.expiredCreds}%</span>
-                </div>
-                <div className="mini-bar-track">
-                  <div className="mini-bar-fill bg-gradient-to-r from-red-500 to-rose-600" style={{ width: `${Math.min(risk.deductions.expiredCreds * 4, 100)}%` }} />
-                </div>
-              </div>
-              <div>
-                <div className="flex items-center justify-between text-xs mb-1">
-                  <span className="text-ink-500 dark:text-slate-400">Itens LGPD não conformes</span>
-                  <span className="font-semibold text-amber-600 dark:text-amber-400">-{risk.deductions.unresolvedLgpd}%</span>
-                </div>
-                <div className="mini-bar-track">
-                  <div className="mini-bar-fill bg-gradient-to-r from-amber-500 to-orange-600" style={{ width: `${Math.min(risk.deductions.unresolvedLgpd * 5, 100)}%` }} />
-                </div>
-              </div>
-            </div>
-          </div>
-        </Reveal>
+      <div className="grid lg:grid-cols-5 gap-5">
+        {/* Chart */}
+        <div className="glass-card rounded-2xl p-5 lg:col-span-3">
+          <h2 className="text-sm font-display font-bold text-ink-900 dark:text-white mb-3">Evolução da Conformidade</h2>
+          <ResponsiveContainer width="100%" height={200}>
+            <AreaChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+              <defs>
+                <linearGradient id="scoreGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#3366ff" stopOpacity={0.3} />
+                  <stop offset="100%" stopColor="#3366ff" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />
+              <XAxis dataKey="date" stroke={axisColor} fontSize={11} tickLine={false} axisLine={false} />
+              <YAxis stroke={axisColor} fontSize={11} tickLine={false} axisLine={false} domain={[0, 100]} />
+              <Tooltip
+                contentStyle={{ background: tooltipBg, border: `1px solid ${tooltipBorder}`, borderRadius: '12px', color: tooltipText, fontSize: '12px' }}
+                labelStyle={{ color: axisColor, fontWeight: 600 }}
+              />
+              <Area type="monotone" dataKey="score" stroke="#3366ff" strokeWidth={2.5} fill="url(#scoreGradient)" />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
 
-        {/* Risk Score Trend Chart */}
-        <Reveal delay={300} className="lg:col-span-2">
-          <div className="glass-card shimmer-sweep rounded-2xl p-6 h-full">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-base font-display font-bold text-ink-900 dark:text-white">Evolu&ccedil;&atilde;o do N&iacute;vel de Conformidade</h2>
-              <div className="flex items-center gap-1 text-xs text-ink-400 dark:text-slate-500">
-                {risk.score > (chartData[chartData.length - 2]?.score ?? risk.score) ? (
-                  <TrendingDown className="w-4 h-4 text-emerald-500" />
-                ) : (
-                  <TrendingUp className="w-4 h-4 text-red-500" />
-                )}
-                &Uacute;ltimos 14 dias
+        {/* Deductions */}
+        <div className="glass-card rounded-2xl p-5 lg:col-span-2">
+          <h2 className="text-sm font-display font-bold text-ink-900 dark:text-white mb-3">Pontos Deduzidos</h2>
+          <div className="space-y-3">
+            {[
+              { label: 'Alta severidade em aberto', val: risk.deductions.highVulns, color: 'from-red-500 to-red-600', text: 'text-red-600 dark:text-red-400' },
+              { label: 'Média severidade em aberto', val: risk.deductions.mediumVulns, color: 'from-amber-500 to-amber-600', text: 'text-amber-600 dark:text-amber-400' },
+              { label: 'Credenciais vencidas', val: risk.deductions.expiredCreds, color: 'from-red-500 to-rose-600', text: 'text-red-600 dark:text-red-400' },
+              { label: 'Itens LGPD não conformes', val: risk.deductions.unresolvedLgpd, color: 'from-amber-500 to-orange-600', text: 'text-amber-600 dark:text-amber-400' },
+            ].map((d) => (
+              <div key={d.label}>
+                <div className="flex items-center justify-between text-xs mb-1">
+                  <span className="text-ink-500 dark:text-slate-400">{d.label}</span>
+                  <span className={cn('font-semibold', d.text)}>-{d.val}%</span>
+                </div>
+                <div className="mini-bar-track">
+                  <div className={cn('mini-bar-fill bg-gradient-to-r', d.color)} style={{ width: `${Math.min(d.val * 3, 100)}%` }} />
+                </div>
               </div>
-            </div>
-            <ResponsiveContainer width="100%" height={250}>
-              <AreaChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="scoreGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#3366ff" stopOpacity={0.3} />
-                    <stop offset="100%" stopColor="#3366ff" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />
-                <XAxis dataKey="date" stroke={axisColor} fontSize={11} tickLine={false} axisLine={false} />
-                <YAxis stroke={axisColor} fontSize={11} tickLine={false} axisLine={false} domain={[0, 100]} />
-                <Tooltip
-                  contentStyle={{ background: tooltipBg, border: `1px solid ${tooltipBorder}`, borderRadius: '12px', color: tooltipText, fontSize: '12px' }}
-                  labelStyle={{ color: axisColor, fontWeight: 600 }}
-                />
-                <Area type="monotone" dataKey="score" stroke="#3366ff" strokeWidth={2.5} fill="url(#scoreGradient)" />
-              </AreaChart>
-            </ResponsiveContainer>
+            ))}
           </div>
-        </Reveal>
+        </div>
       </div>
 
-      {/* Quick Action Items */}
-      <Reveal delay={100}>
-        <div className="glass-card rounded-2xl p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-base font-display font-bold text-ink-900 dark:text-white">O que precisa de aten&ccedil;&atilde;o agora</h2>
-            <button
-              onClick={() => onNavigate('audits')}
-              className="flex items-center gap-1 text-xs text-brand-600 dark:text-brand-400 font-medium hover:text-brand-500 transition-colors group"
-            >
-              Ver todos
-              <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
-            </button>
-          </div>
-          {openActions.length === 0 ? (
-            <div className="py-8 text-center text-ink-400 dark:text-slate-500 text-sm">
-              <ShieldCheck className="w-8 h-8 mx-auto mb-2 opacity-30" />
-              Nenhum problema pendente. Tudo em ordem.
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {openActions.map((item, i) => (
-                <div
-                  key={item.id}
-                  className="flex items-center gap-3 p-3 rounded-xl glass-panel hover:shadow-soft transition-all duration-300 stagger-item"
-                  style={{ '--stagger': i } as React.CSSProperties}
-                >
-                  <div className={cn(
-                    'w-9 h-9 rounded-lg flex items-center justify-center shrink-0',
-                    item.severity === 'High' ? 'bg-red-50 dark:bg-red-500/15' :
-                    item.severity === 'Medium' ? 'bg-amber-50 dark:bg-amber-500/15' :
-                    'bg-emerald-50 dark:bg-emerald-500/15'
-                  )}>
-                    <AlertTriangle className={cn(
-                      'w-4 h-4',
-                      item.severity === 'High' ? 'text-red-600 dark:text-red-400' :
-                      item.severity === 'Medium' ? 'text-amber-600 dark:text-amber-400' :
-                      'text-emerald-600 dark:text-emerald-400'
-                    )} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-ink-900 dark:text-slate-200 truncate">{item.title}</p>
-                    <p className="text-xs text-ink-400 dark:text-slate-500 flex items-center gap-1 mt-0.5">
-                      <Clock className="w-3 h-3" /> {relativeTime(item.incident_date)}
-                      {item.assigned_to && <span> · {item.assigned_to}</span>}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <Badge className={SEVERITY_COLORS[item.severity]}>{item.severity}</Badge>
-                    <Badge className={AUDIT_STATUS_COLORS[item.status]}>{item.status}</Badge>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+      {/* Priority incidents */}
+      <div className="glass-card rounded-2xl p-5">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-display font-bold text-ink-900 dark:text-white">Atenção Necessária</h2>
+          <button onClick={() => onNavigate('audits')} className="flex items-center gap-1 text-xs text-brand-600 dark:text-brand-400 font-medium hover:text-brand-500 transition-colors group">
+            Ver todos <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+          </button>
         </div>
-      </Reveal>
+        {openActions.length === 0 ? (
+          <div className="py-6 text-center text-ink-400 dark:text-slate-500 text-sm">
+            <ShieldCheck className="w-7 h-7 mx-auto mb-2 opacity-30" />
+            Nenhum problema pendente.
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {openActions.map((item) => (
+              <div key={item.id} className="flex items-center gap-3 p-2.5 rounded-xl glass-panel hover:shadow-soft transition-all duration-200">
+                <div className={cn(
+                  'w-8 h-8 rounded-lg flex items-center justify-center shrink-0',
+                  item.severity === 'High' ? 'bg-red-50 dark:bg-red-500/15' :
+                  item.severity === 'Medium' ? 'bg-amber-50 dark:bg-amber-500/15' :
+                  'bg-emerald-50 dark:bg-emerald-500/15'
+                )}>
+                  <AlertTriangle className={cn(
+                    'w-4 h-4',
+                    item.severity === 'High' ? 'text-red-600 dark:text-red-400' :
+                    item.severity === 'Medium' ? 'text-amber-600 dark:text-amber-400' :
+                    'text-emerald-600 dark:text-emerald-400'
+                  )} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-ink-900 dark:text-slate-200 truncate">{item.title}</p>
+                  <p className="text-xs text-ink-400 dark:text-slate-500 flex items-center gap-1 mt-0.5">
+                    <Clock className="w-3 h-3" /> {relativeTime(item.incident_date)}
+                    {item.assigned_to && <span> · {item.assigned_to}</span>}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <Badge className={SEVERITY_COLORS[item.severity]}>{item.severity}</Badge>
+                  <Badge className={AUDIT_STATUS_COLORS[item.status]}>{item.status}</Badge>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

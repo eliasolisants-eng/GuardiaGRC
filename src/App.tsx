@@ -6,9 +6,7 @@ import LGPD from '@/pages/LGPD';
 import Credentials from '@/pages/Credentials';
 import Audits from '@/pages/Audits';
 import { supabase } from '@/lib/supabase';
-import {
-  GrcAsset, LgpdItem, Credential, AuditLog,
-} from '@/types';
+import { GrcAsset, LgpdItem, Credential, AuditLog } from '@/types';
 import { calculateRiskScore, getAlertCount } from '@/lib/risk';
 import { exportAuditReport } from '@/lib/export';
 
@@ -39,10 +37,6 @@ function App() {
   const risk = calculateRiskScore(assets, lgpdItems, credentials, auditLogs);
   const alertCount = getAlertCount(credentials, auditLogs, lgpdItems);
 
-  const handleExport = () => {
-    exportAuditReport(risk, assets, lgpdItems, credentials, auditLogs);
-  };
-
   if (!dataLoaded) {
     return (
       <div className="flex flex-col items-center justify-center h-screen gap-4 bg-ink-50 dark:bg-surface-0">
@@ -53,12 +47,12 @@ function App() {
   }
 
   return (
-    <Layout current={view} onNavigate={setView} alertCount={alertCount} onExport={handleExport}>
-      {view === 'dashboard' && <Dashboard onNavigate={setView} />}
-      {view === 'assets' && <Assets />}
-      {view === 'lgpd' && <LGPD onChange={loadAll} />}
-      {view === 'credentials' && <Credentials />}
-      {view === 'audits' && <Audits />}
+    <Layout current={view} onNavigate={setView} alertCount={alertCount} onExport={() => exportAuditReport(risk, assets, lgpdItems, credentials, auditLogs)}>
+      {view === 'dashboard' && <Dashboard assets={assets} lgpdItems={lgpdItems} credentials={credentials} auditLogs={auditLogs} onNavigate={setView} />}
+      {view === 'assets' && <Assets assets={assets} onChange={loadAll} />}
+      {view === 'lgpd' && <LGPD items={lgpdItems} onChange={loadAll} />}
+      {view === 'credentials' && <Credentials credentials={credentials} onChange={loadAll} />}
+      {view === 'audits' && <Audits logs={auditLogs} onChange={loadAll} />}
     </Layout>
   );
 }
